@@ -1,0 +1,16 @@
+{
+    "project": "finetune",
+    "config": {
+        "model": "phi-2",
+        "block_size": 128,
+        "epochs": 3,
+        "lr": 5e-5,
+        "weight_decay": 0.01,
+        "batch_size": 16,
+        "gradient_accumulation_steps": 1,
+        "logging_steps": 20,
+        "lora_r": 128, 
+        "lora_alpha": 64,
+        "lora_dropout": 0.05
+    }
+}
