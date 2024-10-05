@@ -1,7 +1,6 @@
 
 """
 Inference which makes use of tags to perform calculations.
-Allows for ICL with CoT, or finetuned models
 """
 
 import os
@@ -36,7 +35,7 @@ def process_datafile(file, tokenizer, icl):
         res = []
         if icl:
             res = TAGS_ICL.copy()
-        res.append({"role": "user", "content": f"[QUESTION] {row['Parsed_Problem']}"})
+        res.append({"role": "user", "content": f"[QUESTION] {row['Problem']}"})
         return tokenizer.apply_chat_template(res, add_generation_prompt=True, tokenize=False)
     
     df['prompt'] = df.apply(create_prompt, axis=1)
@@ -135,19 +134,12 @@ def generate_responses(model, tokenizer, df, batch_size, max_length, sample):
                             new_input_ids = process_calculations(current_input_ids)
                         else:
                             new_input_ids = process_calculations(current_input_ids[:-(first_non_pad_index)])
-                        # print(f'regenerate {indices[i]}')
                         regenerate_ids.append(new_input_ids)
                         regenerate_idx.append(indices[i])
                     else:
-                        # print(f"{indices[i]} done")
                         outputs[indices[i]] = current_input_ids
-                        # print(outputs.keys())
 
                 if regenerate_ids:
-                    # word_output = tokenizer.batch_decode(regenerate_ids, skip_special_tokens=True)
-                    # new_batch = tokenizer(word_output, padding=True, return_tensors='pt')
-                    # input_ids = new_batch['input_ids'].to(device)
-                    # attention_mask = new_batch["attention_mask"].to(device)
                     def remove_leading_pad(tensor):
                         non_pad_idx = 0
                         while non_pad_idx < len(tensor) and tensor[non_pad_idx] == tokenizer.pad_token_id:
@@ -162,11 +154,9 @@ def generate_responses(model, tokenizer, df, batch_size, max_length, sample):
                     for i, tensor in enumerate(processed_ids):
                         pad_length = longest - len(tensor)
                         if pad_length < 0 or len(tensor) == max_length:
-                            # print(f"{indices[i]} done")
                             outputs[indices[i]] = current_input_ids
                             regenerate_idx.remove(indices[i])
                             continue
-                            # print(outputs.keys())
                         elif pad_length > 0:
                             padded_tensor = torch.cat([torch.tensor([tokenizer.pad_token_id]*pad_length).to(device), tensor], dim=0)
                             attn = torch.cat([torch.tensor([0] * pad_length).to(device), torch.tensor([1] * len(tensor)).to(device)], dim=0)
@@ -193,7 +183,6 @@ def generate_responses(model, tokenizer, df, batch_size, max_length, sample):
             if i in outputs:
                 final_output.append(outputs[i])
             else:
-                # print(f"{i} not found")
                 final_output.append(original_input_ids[i])
 
         longest_length = max(tensor.size(0) for tensor in final_output)
@@ -265,7 +254,7 @@ def main(args):
         df['Output'] = df['Output'].apply(lambda x: x[find_offset(x)+1:])
     
     if args.append:
-        current_df = current_df[df.columns] # Remove any extra columns
+        current_df = current_df[df.columns] 
         df = pd.concat([current_df, df], ignore_index=True)
         
     df.to_csv(output_file, index=False)

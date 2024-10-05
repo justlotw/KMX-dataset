@@ -42,17 +42,17 @@ def process_datafile(file, use_topic):
     def create_prompt(row):
         if use_topic:
             return [
-                {'role': 'user', 'content': f"[QUESTION] {row['Parsed_Problem']}"},
-                {'role': 'assistant', 'content': f"[EXPLANATION] The topic is: {row['Unit_Name']}. {row['Explanation']}\n[ANSWER] {row['Parsed_Answer']}\n"},
+                {'role': 'user', 'content': f"[QUESTION] {row['Problem']}"},
+                {'role': 'assistant', 'content': f"[EXPLANATION] The topic is: {row['Exercise_Name']}. {row['Solution']}\n[ANSWER] {row['Answer']}\n"},
             ]
         else:
             return [
-                {'role': 'user', 'content': f"[QUESTION] {row['Parsed_Problem']}"},
-                {'role': 'assistant', 'content': f"[EXPLANATION] {row['Explanation']}\n[ANSWER] {row['Parsed_Answer']}\n"},
+                {'role': 'user', 'content': f"[QUESTION] {row['Problem']}"},
+                {'role': 'assistant', 'content': f"[EXPLANATION] {row['Solution']}\n[ANSWER] {row['Answer']}\n"},
             ]  
     
     df['prompt'] = df.apply(create_prompt, axis=1)
-    train_df, val_df = train_test_split(df, test_size=0.2, stratify=df['Topic'], random_state=42)
+    train_df, val_df = train_test_split(df, test_size=0.2, stratify=df['Exercise_Name'], random_state=42)
     return train_df, val_df
     
 def load_config(config_file):
@@ -113,7 +113,6 @@ def load_model(config, model_dir):
         if 'lora' in name:
             param.requires_grad = True
     model.config.use_cache = False
-    # model.gradient_checkpointing_enable()
     model.to(device)
     return model, tokenizer
 
@@ -143,7 +142,6 @@ def split_into_blocks(train_ds, val_ds, block_size):
             k: [t[i : i + block_size] for i in range(0, total_length, block_size)]
             for k, t in concatenated_examples.items()
         }
-        # result["labels"] = result["input_ids"].copy()
         return result
     
     train_ds = train_ds.map(group_texts, batched=True, remove_columns=train_ds.column_names)
@@ -233,7 +231,7 @@ def finetune_model(model, train_loader, val_loader, config, save_dir):
             print(f"Model saved to {save_dir}")
         else:
             early_stopping += 1
-            if early_stopping == 2: # Hardcoded early stopping
+            if early_stopping == 2: 
                 print(f"Early stopping. Best validation loss: {best_val_loss}")
                 break
 

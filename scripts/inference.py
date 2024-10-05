@@ -53,7 +53,7 @@ def process_datafile(file, tokenizer, icl_prompt):
 
     def create_prompt(row):
         res = icl_prompt.copy()
-        res.append({"role": "user", "content": f"[QUESTION] {row['Parsed_Problem']}"})
+        res.append({"role": "user", "content": f"[QUESTION] {row['Problem']}"})
         return tokenizer.apply_chat_template(res, add_generation_prompt=True, tokenize=False)
     
     df['prompt'] = df.apply(create_prompt, axis=1)
@@ -141,7 +141,7 @@ def main(args):
         df['Output'] = df['Output'].apply(lambda x: x[find_offset(icl_prompt, x)+1:])
     
     if args.append:
-        current_df = current_df[df.columns] # Remove any extra columns
+        current_df = current_df[df.columns]
         df = pd.concat([current_df, df], ignore_index=True)
 
     df.to_csv(output_file, index=False)
