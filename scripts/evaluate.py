@@ -242,10 +242,10 @@ def main(args):
     df['Correct'] = df.apply(check_equality, axis=1)
 
     out_df = pd.read_csv(args.output)
-    if args.run_number == -1:
+    if args.run_num == -1:
         new_column_prefix = f"{args.technique}_{args.model}"
     else:
-        new_column_prefix = f"{args.technique}_{args.run_number}_{args.model}"
+        new_column_prefix = f"{args.technique}_{args.run_num}_{args.model}"
     out_df['Equation_Answer'] = df['Equation_Answer']
     out_df['Answer_Evaluated'] = df['Answer_Evaluated']
     out_df[f"{new_column_prefix}_Output"] = df['Output_Evaluated']
@@ -265,13 +265,13 @@ if __name__ == "__main__":
     parser.add_argument("--technique", type=str, required=True)
     parser.add_argument("--model", type=str, help="The model name", required=True)
     parser.add_argument("--output", type=str, help="The path to the consolidated output file", required=True)
-    parser.add_argument("--run_number", type=int, help="The run number", required=False, default=0)
+    parser.add_argument("--run_num", type=int, help="The run number", required=False, default=0)
     args = parser.parse_args()
 
-    if args.run_number == -1:
+    if args.run_num == -1:
         args.file = os.path.join(args.results_folder, args.technique, f"{args.model}.csv")
     else:
-        args.file = os.path.join(args.results_folder, args.technique, f"{args.model}_{args.run_number}.csv")
+        args.file = os.path.join(args.results_folder, args.technique, f"{args.model}_{args.run_num}.csv")
     main(args)
     
     end = datetime.now()
