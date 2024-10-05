@@ -269,15 +269,15 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--datafile", type=str, required=True, help="Path to the datafile")
+    parser.add_argument("--output", type=str, required=True, help="Output directory")
     parser.add_argument("--model", type=str, required=True, help="Model name")
     parser.add_argument("--model_dir", type=str, help="Path to the model directory")
-    parser.add_argument("--output", type=str, required=True, help="Output directory")
     parser.add_argument("--batch_size", type=int, default=8, help="Batch size")
     parser.add_argument("--max_length", type=int, default=512, help="Max length of the response")
-    parser.add_argument("--use_icl", action='store_true', help="Use in-context learning", default=False)
-    parser.add_argument("--run_num", type=int, default=0, help="Run number")
     parser.add_argument("--greedy", action='store_true', help="Disable sampling", default=False)
+    parser.add_argument("--run_num", type=int, default=0, help="Run number")
     parser.add_argument("-a", "--append", help="Append to the output file", action="store_true", default=False)
+    parser.add_argument("--use_icl", action='store_true', help="Use in-context learning", default=False) 
 
     print(f"Device: {device}")
     try:
