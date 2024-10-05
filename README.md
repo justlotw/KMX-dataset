@@ -45,3 +45,108 @@ Relevant files:
 
 Full experimental results and discussions can be seen in the paper.
 
+### Models Available
+A list of possible models, and the corresponding string required when running the respective python scripts. Note that the GPT experiments are conducted through the openAI API.
+| Model            | model-name        |
+|:-----------------|:------------------|
+| DeepSeekMath     | deepseekmath-7b   |
+| Falcon           | falcon-7b         |
+| Gemma            | gemma-2b          |
+| Llama 3          | llama3-8b         |
+| Llama 3.1        | llama3_1-8b       |
+| Mathstral        | mathstral-7b      |
+| MetaMath-Mistral | metamathmistral-7b|
+| Mistral          | mistral-7b        |
+| Phi-2            | phi-2             |
+| Qwen             | qwen-7b           |
+| Rho              | rho-1b            |
+| TinyLlama        | tinyllama         |
+| Vicuna           | vicuna-7b         |
+| WizardMath       | wizardmath-7b     |
+| Zephyr           | zephyr-3b         |
+
+### Fine-tuning
+To fine-tune a model (Experiments 3-6), the [scripts/finetune.py](scripts/finetune.py) file is utilised with the following parameters.
+```
+python finetune.py [datafile] [config] [output] [-use_topic] [-use_calculator] [model_dir]
+```
+
+| Argument       | Default | Comment                                                                                             |
+|----------------|---------|-----------------------------------------------------------------------------------------------------|
+| datafile       |         | Path to `kmx_train.csv`                                                                             |
+| config         |         | Path to `finetune_config.json`                                                                      |
+| output         |         | Directory to save fine-tuned model                                                                  |
+| use_topic      | False   | Whether to include identification of exercise name (Experiment 6)                           |
+| use_calculator | False   | Whether to create tokenization for calculator tags (Experiment 4 and 5)                     |
+| model_dir      |         | (Optional) If training a model from an existing model directory, this is the path to that directory |
+
+
+To change the model and other hyperparameters related to the fine-tuning process, change the [finetune_config.json](finetune_config.json) file.
+
+
+### Inference
+To perform an inference of a model, whether it is in-context learning (Experiments 1 and 2) or after fine-tuning (Experiments 3 and 6), the [scripts/inference.py](scripts/inference.py) file is utilised with the following parameters.
+```
+python inference.py [datafile] [output] [model] [model_dir] [batch_size] [max_length] [append_to_prompt] [-greedy] [run_num]
+```
+| Argument | Default | Comment |
+|---|---|---|
+| datafile |  | Path to `kmx_test.csv` |
+| output |  | Directory to save the generated output (as a csv file) |
+| model |  | Name of model being used |
+| model_dir |  | (For fine-tuned models) Directory containing the desired model |
+| batch_size | 8 | Batch size for generation |
+| max_length | 250 | Maximum number of additional tokens generated |
+| append_to_prompt | none | What to append to the prompt, if any. 'base' for ICL without CoT, 'cot' for ICL with CoT, 'none' otherwise |
+| -greedy | False | Whether to use greedy decoding |
+| run_num | 0 | Run number. Helps to distinguish outputs if generating with self-consistency |
+
+### Inference (Calculator)
+For the experiments involving an external calculator (Experiments 4 and 5), the [scripts/inf_calc.py](scripts/inf_calc.py) file is used instead withe the following parameters. 
+```
+python inf_calc.py [datafile] [output] [model] [model_dir] [batch_size] [max_length] [-greedy] [run_num]
+```
+| Argument | Default | Comment |
+|---|---|---|
+| datafile |  | Path to `kmx_test.csv` |
+| output |  | Directory to save the generated output (as a csv file) |
+| model |  | Name of model being used |
+| model_dir |  | (For fine-tuned models) Directory containing the desired model |
+| batch_size | 8 | Batch size for generation |
+| max_length | 512 | Maximum number of additional tokens generated |
+| -greedy | False | Whether to use greedy decoding |
+| run_num | 0 | Run number. Helps to distinguish outputs if generating with self-consistency |
+
+### Evaluation
+After generating the output via the respective inference script, the [scripts/evaluate.py](scripts/evaluate.py) file is utilised to extract the answer and evaluate it against the actual answer.
+
+```
+python evaluate.py [results_folder] [technique] [model] [output] [run_num]
+```
+| Argument | Default | Comment |
+|---|---|---|
+| results_folder |  | Path to the parent results folder |
+| technique |  | Name of the technique applied, serves as the child folder that contains the generated csv |
+| model |  | Name of model being used |
+| output |  | Path to a consolidated output file of all results |
+| run_num | 0 | Run number. Performs the evaluation on the specific run number |
+
+
+### Example Usage
+**Example 1: In-context learning with chain-of-thought reasoning (ICL with CoT) and greedy decoding generation**  
+
+```
+python inference.py --datafile "../data/kmx_test.csv" --output "results/inference_cot" --model "qwen-7b" --append_to_prompt "cot" --greedy  
+
+python evaluate.py --results_folder "results/" --technique "inference_cot" --model "qwen-7b" --output "results/consolidated.csv"
+```
+
+**Example 2: Fine-tuning, with the goal of employing self-consistency generation**  
+To generate responses with the goal of performing self-consistency, we use different run_num to generate differently-named files
+```
+python finetune.py --datafile "../data/kmx_train.csv" --output "models/finetune" --config "finetune_config.json"  
+
+python inference.py --datafile "../data/kmx_test.csv" --output "results/finetune" --model "qwen-7b" --model_dir "models/finetune" --run_num 2  
+
+python evaluate.py --results_folder "results/" --technique "finetune" --model "qwen-7b" --output "results/consolidated.csv" --run_num 2
+```
