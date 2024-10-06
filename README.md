@@ -102,7 +102,7 @@ python inference.py [datafile] [output] [model] [model_dir] [batch_size] [max_le
 | run_num | 0 | Run number. Helps to distinguish outputs if generating with self-consistency |
 
 ### Inference (Calculator)
-For the experiments involving an external calculator (Experiments 4 and 5), the [scripts/inf_calc.py](scripts/inf_calc.py) file is used instead withe the following parameters. 
+For the experiments involving an external calculator (Experiments 4 and 5), the [scripts/inf_calc.py](scripts/inf_calc.py) file is used with the following parameters. 
 ```
 python inf_calc.py [datafile] [output] [model] [model_dir] [batch_size] [max_length] [-greedy] [run_num]
 ```
@@ -150,3 +150,5 @@ python inference.py --datafile "../data/kmx_test.csv" --output "results/finetune
 
 python evaluate.py --results_folder "results/" --technique "finetune" --model "qwen-7b" --output "results/consolidated.csv" --run_num 2
 ```
+
+In the original csv created, there will be a 'Correct' column indicating if the generated answer is correct. In addition, the `consolidated.csv` contains an overview of all the results that have been evaluated.
