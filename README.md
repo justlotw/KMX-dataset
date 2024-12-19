@@ -1,6 +1,6 @@
 # KMX Dataset
 ## Unraveling the Complexity of Math Problems with the KMX Dataset
-A full report can be viewed [here](KMX-paper).
+A full report can be viewed [here](KMX-paper.pdf).
 
 Mathematical reasoning is a crucial aspect in evaluating human cognition and is a crucial part of many decision-making tasks. While current datasets focus on a narrow set of topics or question types, the KMX(Khan-Math-X) dataset is a comprehensive and diverse set of problems that is annotated with additional dimensions such as grade level, exercise names, and question types. This allows for more fine-grained analysis of model performance. We assess the performance of several models using various techniques and show that while certain methods improve performance across the board, their effectiveness varies significantly depending on the model and problem type, revealing the intricacies when dealing with different mathematical tasks. The KMX dataset enables a more nuanced understanding of model strengths and weaknesses, and offers a valuable resource for future research in mathematical reasoning.
 
